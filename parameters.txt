@@ -1,7 +1,9 @@
 files=files/GKD-c_1_n500_m50.txt files/GKD-c_2_n500_m50.txt files/GKD-c_3_n500_m50.txt files/SOM-b_11_n300_m90.txt files/SOM-b_12_n300_m120.txt files/SOM-b_13_n400_m40.txt files/MDG-a_21_n2000_m200.txt files/MDG-a_22_n2000_m200.txt files/MDG-a_23_n2000_m200.txt
 seeds=26968794 69687942 96879426 68794269 87942696
-evaluations=50000
-probCr=0.7
-probMut=0.05
-porcMPX=80
-tamPob=50
+evaluations=10000
+tamPob=10
+q0=0.95
+p=0.1
+fi=0.1
+delta=0.75
+greedy=19457.09 19660.95 19435.69 20365 35610 4502 112266 112349 112619

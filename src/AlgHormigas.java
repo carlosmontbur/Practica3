@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class AlgHormigas {
 
 
-    void run(double[][] data, int n, int m, long seed, long iterations, double greedy, int alfa, int beta, int tamPob,
+    public static void run(double[][] data, int n, int m, long seed, long iterations, double greedy, int alfa, int beta, int tamPob,
              double q0, double p, double fi, double delta) {
         long globalStartTime = System.currentTimeMillis();
         long globalEndTime;

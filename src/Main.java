@@ -19,38 +19,44 @@ public class Main {
 //                System.out.print("Saliendo...");
 //                break;
 //            }
-            System.out.print("Inserte Nº Semilla [0-4]: ");
-            num_seed = capt.nextInt();
-            System.out.print("Inserte Nº Archivo [0-8]: ");
-            num_file = capt.nextInt();
-            System.out.println("");
-
-            ParameterReader parameterReader = new ParameterReader(args[0]);
-            File file = new File(parameterReader.getFiles().get(num_file));
-
-            Long seed = parameterReader.getSeeds().get(num_seed);
-            int evaluations = parameterReader.getEvaluations();
-            double probCr = parameterReader.getProbCr();
-            double probMut = parameterReader.getProbMut();
-            RandomGenerator rnd = new RandomGenerator();
-            rnd.setSeed(seed);
-            int porcMPX = rnd.getRandomInt(20, 80);
-            int tamPob = parameterReader.getTamPob();
-            int tamEli = 2;
-            int cr = 1;
-            Scanner scanner = new Scanner(file);
-            int n = scanner.nextInt();
-            int m = scanner.nextInt();
-
-            double[][] data = new double[n][n];
-            File dir = new File("logs");
-            dir.mkdirs();
-            Utils.readFileAndStoreFloatValues(scanner, data);
+//        System.out.print("Inserte Nº Semilla [0-4]: ");
+//        num_seed = capt.nextInt();
+        num_seed = 0;
+//        System.out.print("Inserte Nº Archivo [0-8]: ");
+//        num_file = capt.nextInt();
+//        System.out.println("");
+        num_file = 0;
 
 
-            String filePath = Utils.getFilePath(num_file, num_seed, porcMPX, tamEli, cr);
+        // LEER PARAMETROS
+        ParameterReader parameterReader = new ParameterReader(args[0]);
+        File file = new File(parameterReader.getFiles().get(num_file));
+        Long seed = parameterReader.getSeeds().get(num_seed);
+        int evaluations = parameterReader.getEvaluations();
+        int tamPob = parameterReader.getTamPob();
+        double greedy = parameterReader.getGreedy().get(num_file);
+        int alfa = 1;
+        int beta = 1;
+        double q0 = parameterReader.getQ0();
+        double p = parameterReader.getP();
+        double fi = parameterReader.getFi();
+        double delta = parameterReader.getDelta();
 
-//            AGG.run(data, n, m, cromosomaResult, tamPob, seed, evaluations, probCr, probMut, tamEli, cr, porcMPX, filePath);
+
+        // CREAR MATRIZ
+        Scanner scanner = new Scanner(file);
+        int n = scanner.nextInt();
+        int m = scanner.nextInt();
+        double[][] data = new double[n][n];
+        Utils.readFileAndStoreFloatValues(scanner, data);
+
+        File dir = new File("logs");
+        dir.mkdirs();
+
+
+//            String filePath = Utils.getFilePath(num_file, num_seed, porcMPX, tamEli, cr);
+
+        AlgHormigas.run(data, n, m, seed, evaluations, greedy, alfa, beta, tamPob, q0, p, fi, delta);
 //        }
 
     }
