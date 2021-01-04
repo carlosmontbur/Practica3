@@ -10,10 +10,10 @@ public class AlgHormigas {
         MatrizDoubles feromona = new MatrizDoubles(n, greedy);
         MatrizDoubles heuristica = new MatrizDoubles(n, data);
         ArrayList<Integer> LRC = new ArrayList<>();
-        ColoniaHormigas coloniaHormigas = new ColoniaHormigas(m, tamPob);
+        ColoniaHormigas coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
 
-        Hormiga bestGlobalHormiga = new Hormiga(m);
-        Hormiga bestActualHormiga = new Hormiga(m);
+        Hormiga bestGlobalHormiga = new Hormiga(m, n);
+        Hormiga bestActualHormiga = new Hormiga(m, n);
 
         int cont = 0;
         long iterationStartTime;
@@ -75,29 +75,33 @@ public class AlgHormigas {
 
                     double denominador = 0;
                     double argMax = 0;
-                    int posArgMax = 0; // TODO mirar si hay que inicializar
+                    int posArgMax = -1;
                     for (int i = 0; i < LRC.size(); i++) {
                         denominador += ferxHeu[i];
-                        if (ferxHeu[i] > argMax) {
+                        if (ferxHeu[i] > argMax || posArgMax == -1) {
                             argMax = ferxHeu[i];
                             posArgMax = LRC.get(i);
                         }
                     }
 
                     // FUNCION DE TRANSICION
-                    int elegido = 0; // TODO mirar si hay que inicializar
+                    int elegido = -1;
+                    double numerador = 0 ;
                     double[] prob = new double[LRC.size()];
+                    for (int i=0; i<LRC.size(); i++) {
+                        prob[i] = 0;
+                    }
                     double q = rnd.getRandomFloat(0, (float) 1.01);
 
-                    if (q0 <= q) {
+                    if (q0 <= q ) {
                         elegido = posArgMax;
                     } else {
                         for (int i = 0; i < LRC.size(); i++) {
-                            double numerador = ferxHeu[i];
+                            numerador = ferxHeu[i];
                             prob[i] = numerador / denominador;
                         }
 
-                        double uniforme = rnd.getRandomFloat(0, (float) 1.01);
+                        double uniforme = rnd.getRandomFloat(0, 1);
                         double acumulado = 0;
                         for (int i = 0; i < LRC.size(); i++) {
                             acumulado += prob[i];
@@ -106,10 +110,18 @@ public class AlgHormigas {
                                 break;
                             }
                         }
+                        System.out.println("Acumulado " + acumulado);
+                        System.out.println("Uniforme " + uniforme);
+                        System.out.println("Num " + numerador);
+                        System.out.println("denominador " + denominador);
                     }
                     Hormiga horm = coloniaHormigas.getHormiga(h);
                     horm.setVectorIndex(comp, elegido);
+                    if (elegido == -1) {
+                        System.out.println(2);
+                    }
                     horm.setMarked(elegido, true);
+
 
                     LRC.clear();
                 }
@@ -123,10 +135,10 @@ public class AlgHormigas {
                 }
             }
 
-            bestActualHormiga = coloniaHormigas.getBestHormiga(); // TODO PROBAR QUE FUNCIONA LA IGUALDAD
+            bestActualHormiga = coloniaHormigas.getBestHormiga(data, m);
 
             if (bestActualHormiga.isBetterThan(bestGlobalHormiga)) {
-                bestGlobalHormiga = bestActualHormiga; // TODO PROBAR QUE FUNCIONA LA IGUALDAD
+                bestGlobalHormiga = bestActualHormiga;
             }
 
             // APLICAR EL DEMONIO
@@ -150,10 +162,11 @@ public class AlgHormigas {
                 }
             }
 
-            coloniaHormigas = new ColoniaHormigas(m, tamPob);
+            coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
-            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste());
             iterationEndTime = System.currentTimeMillis() - iterationStartTime;
+            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo iteración: " +
+                    iterationEndTime);
         }
 
 

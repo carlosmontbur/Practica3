@@ -5,22 +5,17 @@ public class Hormiga {
     double coste = 0;
     boolean[] marcados;
 
-    public Hormiga(int m) {
+    public Hormiga(int m, int n) {
         vector = new int[m];
-        marcados = new boolean[m];
+        marcados = new boolean[n];
 
         for (int i = 0; i < m; i++) {
             vector[i] = 0;
+        }
+
+        for (int i = 0; i < n; i++) {
             marcados[i] = false;
         }
-    }
-
-    public int[] getVector() {
-        return vector;
-    }
-
-    public void setVector(int[] vector) {
-        this.vector = vector;
     }
 
     public double getCoste() {
@@ -53,7 +48,7 @@ public class Hormiga {
         this.marcados[index] = value;
     }
 
-    public boolean isBetterThan(Hormiga h){
+    public boolean isBetterThan(Hormiga h) {
         return this.coste > h.coste;
     }
 }

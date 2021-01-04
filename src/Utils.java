@@ -24,17 +24,17 @@ public class Utils {
         System.out.print("\n");
     }
 
-//    public static double calculateCost(double[][] data, Cromosoma cromosoma, int m) {
-//        double result = 0;
-//        for (int i = 0; i < m - 1; i++) {
-//            for (int j = i + 1; j < m; j++) {
-//                result += cromosoma.getGen(i) < cromosoma.getGen(j)
-//                        ? data[cromosoma.getGen(i)][cromosoma.getGen(j)]
-//                        : data[cromosoma.getGen(j)][cromosoma.getGen(i)];
-//            }
-//        }
-//        return result;
-//    }
+    public static double calculateCost(double[][] data, Hormiga hormiga, int m) {
+        double result = 0;
+        for (int i = 0; i < m - 1; i++) {
+            for (int j = i + 1; j < m; j++) {
+                result += hormiga.getVectorIndex(i) < hormiga.getVectorIndex(j)
+                        ? data[hormiga.getVectorIndex(i)][hormiga.getVectorIndex(j)]
+                        : data[hormiga.getVectorIndex(j)][hormiga.getVectorIndex(i)];
+            }
+        }
+        return result;
+    }
 //
 //    public static void randomInit(Cromosoma cromosoma, int n, int m, RandomGenerator rnd) {
 //        int x, j, i = 0;
