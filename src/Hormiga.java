@@ -36,4 +36,24 @@ public class Hormiga {
         this.vector[0] = value;
         this.marcados[value] = true;
     }
+
+    public int getVectorIndex(int index) {
+        return this.vector[index];
+    }
+
+    public void setVectorIndex(int index, int value) {
+        this.vector[index] = value;
+    }
+
+    public boolean isIndexMarked(int index) {
+        return this.marcados[index];
+    }
+
+    public void setMarked(int index, boolean value) {
+        this.marcados[index] = value;
+    }
+
+    public boolean isBetterThan(Hormiga h){
+        return this.coste > h.coste;
+    }
 }

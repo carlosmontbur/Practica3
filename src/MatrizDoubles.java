@@ -10,6 +10,7 @@ public class MatrizDoubles {
             }
         }
     }
+
     public MatrizDoubles(int n, double[][] data) {
         matriz = new double[n][n];
 
@@ -18,5 +19,16 @@ public class MatrizDoubles {
         }
     }
 
+    public double getElement(int x, int y) {
+        return this.matriz[x][y];
+    }
+
+    public void setElement(int x, int y, double value) {
+        this.matriz[x][y] = value;
+    }
+
+    public void addToElement(int x, int y, double value) {
+        this.matriz[x][y] += value;
+    }
 
 }
