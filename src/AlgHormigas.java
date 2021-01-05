@@ -20,8 +20,13 @@ public class AlgHormigas {
         long iterationEndTime = 0;
         RandomGenerator rnd = new RandomGenerator();
         rnd.setSeed(seed);
+        double[] distancias;
         MayorMenorDistancia mayorMenor = new MayorMenorDistancia();
-        double[] ferxHeu;
+        double[] HxF; // Heuristicas x Feromonas
+        double sumHxF;
+        double argumentMax;
+        int posArgumentMax;
+        int chosen;
 
         while (cont < iterations && iterationEndTime < 600000) {
             iterationStartTime = System.currentTimeMillis();
@@ -30,7 +35,7 @@ public class AlgHormigas {
 
             for (int component = 1; component < m; component++) {
                 for (int h = 0; h < tamPob; h++) {
-                    double[] distancias = new double[n];
+                    distancias = new double[n];
 
                     Hormiga hormiga = coloniaHormigas.getHormiga(h);
                     calculateDistances(data, n, component, distancias, hormiga);
@@ -39,58 +44,23 @@ public class AlgHormigas {
 
                     calculateLRC(n, delta, LRC, mayorMenor, distancias, hormiga);
 
-                    ferxHeu = new double[LRC.size()];
+                    HxF = calculateHxF(alfa, beta, feromona, heuristica, LRC, component);
 
+                    sumHxF = 0;
+                    argumentMax = 0;
+                    posArgumentMax = 0;
                     for (int i = 0; i < LRC.size(); i++) {
-                        ferxHeu[i] = 0;
-                        for (int j = 0; j < component; j++) {
-                            ferxHeu[i] += Math.pow(heuristica.getElement(j, LRC.get(i)), beta) *
-                                    Math.pow(feromona.getElement(j, LRC.get(i)), alfa);
+                        sumHxF += HxF[i];
+                        if (HxF[i] > argumentMax) {
+                            argumentMax = HxF[i];
+                            posArgumentMax = LRC.get(i);
                         }
                     }
 
-                    double denominador = 0;
-                    double argMax = 0;
-                    int posArgMax = -1;
-                    for (int i = 0; i < LRC.size(); i++) {
-                        denominador += ferxHeu[i];
-                        if (ferxHeu[i] > argMax) {
-                            argMax = ferxHeu[i];
-                            posArgMax = LRC.get(i);
-                        }
-                    }
+                    chosen = transition(q0, LRC, rnd, HxF, sumHxF, posArgumentMax);
 
-                    // FUNCION DE TRANSICION
-                    int elegido = -1;
-                    double numerador = 0;
-                    double[] prob = new double[LRC.size()];
-                    for (int i = 0; i < LRC.size(); i++) {
-                        prob[i] = 0;
-                    }
-                    double q = rnd.getRandomFloat(0, (float) 1.01);
-
-                    if (q0 <= q) {
-                        elegido = posArgMax;
-                    } else {
-                        for (int i = 0; i < LRC.size(); i++) {
-                            numerador = ferxHeu[i];
-                            prob[i] = numerador / denominador;
-                        }
-
-                        double uniforme = rnd.getRandomFloat(0, 1);
-                        double acumulado = 0;
-                        for (int i = 0; i < LRC.size(); i++) {
-                            acumulado += prob[i];
-                            if (uniforme <= acumulado) {
-                                elegido = LRC.get(i);
-                                break;
-                            }
-                        }
-                    }
-                    Hormiga horm = coloniaHormigas.getHormiga(h);
-                    horm.setVectorIndex(component, elegido);
-                    horm.setMarked(elegido, true);
-
+                    coloniaHormigas.getHormiga(h).setVectorIndex(component, chosen);
+                    coloniaHormigas.getHormiga(h).setMarked(chosen, true);
 
                     LRC.clear();
                 }
@@ -140,6 +110,56 @@ public class AlgHormigas {
 
 
         globalEndTime = System.currentTimeMillis() - globalStartTime;
+    }
+
+    private static int transition(double q0, ArrayList<Integer> LRC, RandomGenerator rnd, double[] hxF, double sumHxF, int posArgumentMax) {
+        double probAM;
+        int chosen;
+        double randomFloat = rnd.getRandomFloat(0, 1);
+        double sumProbLRC = 0;
+        double[] probLRC;
+        chosen = 0;
+        probLRC = createArrayProbLRC(LRC);
+
+        probAM = rnd.getRandomFloat(0, (float) 1.01);
+        if (probAM < q0) {
+            for (int i = 0; i < LRC.size(); i++) {
+                probLRC[i] = hxF[i] / sumHxF;
+            }
+
+            for (int i = 0; i < LRC.size(); i++) {
+                sumProbLRC += probLRC[i];
+                if (randomFloat <= sumProbLRC) {
+                    chosen = LRC.get(i);
+                    break;
+                }
+            }
+        } else {
+            chosen = posArgumentMax;
+        }
+        return chosen;
+    }
+
+    private static double[] createArrayProbLRC(ArrayList<Integer> LRC) {
+        double[] probLRC;
+        probLRC = new double[LRC.size()];
+        for (int i = 0; i < LRC.size(); i++) {
+            probLRC[i] = 0;
+        }
+        return probLRC;
+    }
+
+    private static double[] calculateHxF(int alfa, int beta, MatrizDoubles feromona, MatrizDoubles heuristica, ArrayList<Integer> LRC, int component) {
+        double[] HxF;
+        HxF = new double[LRC.size()];
+        for (int i = 0; i < LRC.size(); i++) {
+            HxF[i] = 0;
+            for (int j = 0; j < component; j++) {
+                HxF[i] += Math.pow(heuristica.getElement(j, LRC.get(i)), beta) *
+                        Math.pow(feromona.getElement(j, LRC.get(i)), alfa);
+            }
+        }
+        return HxF;
     }
 
     private static void calculateLRC(int n, double delta, ArrayList<Integer> LRC, MayorMenorDistancia mayorMenor, double[] distancias, Hormiga hormiga) {
