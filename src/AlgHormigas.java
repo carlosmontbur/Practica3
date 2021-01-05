@@ -4,7 +4,7 @@ public class AlgHormigas {
 
 
     public static void run(double[][] data, int n, int m, long seed, long iterations, double greedy, int alfa, int beta, int tamPob,
-             double q0, double p, double fi, double delta) {
+                           double q0, double p, double fi, double delta) {
         long globalStartTime = System.currentTimeMillis();
         long globalEndTime;
         MatrizDoubles feromona = new MatrizDoubles(n, greedy);
@@ -13,61 +13,37 @@ public class AlgHormigas {
         ColoniaHormigas coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
 
         Hormiga bestGlobalHormiga = new Hormiga(m, n);
-        Hormiga bestActualHormiga = new Hormiga(m, n);
+        Hormiga bestActualHormiga;
 
         int cont = 0;
         long iterationStartTime;
         long iterationEndTime = 0;
         RandomGenerator rnd = new RandomGenerator();
         rnd.setSeed(seed);
+        MayorMenorDistancia mayorMenor = new MayorMenorDistancia();
+        double[] ferxHeu;
 
         while (cont < iterations && iterationEndTime < 600000) {
             iterationStartTime = System.currentTimeMillis();
 
             coloniaHormigas.cargaAleatoria(rnd, n);
 
-            for (int comp = 1; comp < m; comp++) {
+            for (int component = 1; component < m; component++) {
                 for (int h = 0; h < tamPob; h++) {
                     double[] distancias = new double[n];
 
-                    // REFACTOR DISTANCIAS A COLONIA TODO
-                    for (int i = 0; i < n; i++) {
-                        double d = 0;
-                        Hormiga hormiga = coloniaHormigas.getHormiga(h);
-                        if (!hormiga.isIndexMarked(i)) {
-                            for (int k = 0; k < comp; k++) {
-                                d += data[i][coloniaHormigas.getHormiga(h).getVectorIndex(k)];
-                            }
-                            distancias[i] = d;
-                        }
-                    }
-                    // HACER EL CALCULO TODO
-                    double mayorDistancia = Double.MIN_VALUE;
-                    double menorDistancia = Double.MAX_VALUE;
-                    for (int i = 0; i < n; i++) {
-                        if (!coloniaHormigas.getHormiga(h).isIndexMarked(i)) {
-                            if (distancias[i] < menorDistancia) {
-                                menorDistancia = distancias[i];
-                            }
-                            if (distancias[i] > mayorDistancia) {
-                                mayorDistancia = distancias[i];
-                            }
-                        }
-                    }
+                    Hormiga hormiga = coloniaHormigas.getHormiga(h);
+                    calculateDistances(data, n, component, distancias, hormiga);
 
-                    for (int i = 0; i < n; i++) {
-                        if (!coloniaHormigas.getHormiga(h).isIndexMarked(i) &&
-                                (distancias[i] >= (menorDistancia + (delta * (mayorDistancia - menorDistancia))))
-                        ) {
-                            LRC.add(i);
-                        }
-                    }
+                    calculateMayorMenorDistancia(n, mayorMenor, distancias, hormiga);
 
-                    double[] ferxHeu = new double[LRC.size()];
+                    calculateLRC(n, delta, LRC, mayorMenor, distancias, hormiga);
+
+                    ferxHeu = new double[LRC.size()];
 
                     for (int i = 0; i < LRC.size(); i++) {
                         ferxHeu[i] = 0;
-                        for (int j = 0; j < comp; j++) {
+                        for (int j = 0; j < component; j++) {
                             ferxHeu[i] += Math.pow(heuristica.getElement(j, LRC.get(i)), beta) *
                                     Math.pow(feromona.getElement(j, LRC.get(i)), alfa);
                         }
@@ -86,14 +62,14 @@ public class AlgHormigas {
 
                     // FUNCION DE TRANSICION
                     int elegido = -1;
-                    double numerador = 0 ;
+                    double numerador = 0;
                     double[] prob = new double[LRC.size()];
-                    for (int i=0; i<LRC.size(); i++) {
+                    for (int i = 0; i < LRC.size(); i++) {
                         prob[i] = 0;
                     }
                     double q = rnd.getRandomFloat(0, (float) 1.01);
 
-                    if (q0 <= q ) {
+                    if (q0 <= q) {
                         elegido = posArgMax;
                     } else {
                         for (int i = 0; i < LRC.size(); i++) {
@@ -112,10 +88,7 @@ public class AlgHormigas {
                         }
                     }
                     Hormiga horm = coloniaHormigas.getHormiga(h);
-                    horm.setVectorIndex(comp, elegido);
-                    if (elegido == -1) {
-                        System.out.println(2);
-                    }
+                    horm.setVectorIndex(component, elegido);
                     horm.setMarked(elegido, true);
 
 
@@ -124,9 +97,9 @@ public class AlgHormigas {
 
                 for (int h = 0; h < tamPob; h++) {
                     Hormiga hrm = coloniaHormigas.getHormiga(h);
-                    for (int i = 0; i < comp; i++) {
-                        double value = ((1 - fi) * feromona.getElement(hrm.getVectorIndex(i), hrm.getVectorIndex(comp)) + (fi * greedy));
-                        feromona.setElement(hrm.getVectorIndex(i), hrm.getVectorIndex(comp), value);
+                    for (int i = 0; i < component; i++) {
+                        double value = ((1 - fi) * feromona.getElement(hrm.getVectorIndex(i), hrm.getVectorIndex(component)) + (fi * greedy));
+                        feromona.setElement(hrm.getVectorIndex(i), hrm.getVectorIndex(component), value);
                     }
                 }
             }
@@ -160,12 +133,47 @@ public class AlgHormigas {
 
             coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
-            iterationEndTime = System.currentTimeMillis() - iterationStartTime;
+            iterationEndTime += System.currentTimeMillis() - iterationStartTime;
             System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo: " +
                     iterationEndTime);
         }
 
 
         globalEndTime = System.currentTimeMillis() - globalStartTime;
+    }
+
+    private static void calculateLRC(int n, double delta, ArrayList<Integer> LRC, MayorMenorDistancia mayorMenor, double[] distancias, Hormiga hormiga) {
+        for (int i = 0; i < n; i++) {
+            if (!hormiga.isIndexMarked(i) && (distancias[i] >= (mayorMenor.getMenor() +
+                    (delta * (mayorMenor.getMayor() - mayorMenor.getMenor()))))
+            ) {
+                LRC.add(i);
+            }
+        }
+    }
+
+    private static void calculateMayorMenorDistancia(int n, MayorMenorDistancia mayorMenor, double[] distancias, Hormiga hormiga) {
+        mayorMenor.reset();
+        for (int i = 0; i < n; i++) {
+            if (!hormiga.isIndexMarked(i)) {
+                if (distancias[i] < mayorMenor.getMenor()) {
+                    mayorMenor.setMenor(distancias[i]);
+                }
+                if (distancias[i] > mayorMenor.getMayor()) {
+                    mayorMenor.setMayor(distancias[i]);
+                }
+            }
+        }
+    }
+
+    private static void calculateDistances(double[][] data, int n, int component, double[] distancias, Hormiga hormiga) {
+        for (int i = 0; i < n; i++) {
+            distancias[i] = 0;
+            if (!hormiga.isIndexMarked(i)) {
+                for (int k = 0; k < component; k++) {
+                    distancias[i] += data[i][hormiga.getVectorIndex(k)];
+                }
+            }
+        }
     }
 }
