@@ -26,7 +26,6 @@ public class AlgHormigas {
         double sumHxF;
         double argumentMax;
         int posArgumentMax;
-        int chosen;
 
         while (cont < iterations && iterationEndTime < 600000) {
             iterationStartTime = System.currentTimeMillis();
@@ -34,10 +33,9 @@ public class AlgHormigas {
             coloniaHormigas.cargaAleatoria(rnd, n);
 
             for (int component = 1; component < m; component++) {
-                for (int h = 0; h < tamPob; h++) {
+                for (Hormiga hormiga : coloniaHormigas.getHormigas()) {
                     distancias = new double[n];
 
-                    Hormiga hormiga = coloniaHormigas.getHormiga(h);
                     calculateDistances(data, n, component, distancias, hormiga);
 
                     calculateMayorMenorDistancia(n, mayorMenor, distancias, hormiga);
@@ -57,21 +55,12 @@ public class AlgHormigas {
                         }
                     }
 
-                    chosen = transition(q0, LRC, rnd, HxF, sumHxF, posArgumentMax);
-
-                    coloniaHormigas.getHormiga(h).setVectorIndex(component, chosen);
-                    coloniaHormigas.getHormiga(h).setMarked(chosen, true);
+                    calculateChosenAndSetToHormiga(q0, LRC, rnd, HxF, sumHxF, posArgumentMax, component, hormiga);
 
                     LRC.clear();
                 }
 
-                for (int h = 0; h < tamPob; h++) {
-                    Hormiga hrm = coloniaHormigas.getHormiga(h);
-                    for (int i = 0; i < component; i++) {
-                        double value = ((1 - fi) * feromona.getElement(hrm.getVectorIndex(i), hrm.getVectorIndex(component)) + (fi * greedy));
-                        feromona.setElement(hrm.getVectorIndex(i), hrm.getVectorIndex(component), value);
-                    }
-                }
+                updateFeromona(greedy, fi, feromona, coloniaHormigas, component);
             }
 
             bestActualHormiga = coloniaHormigas.getBestHormiga(data, m);
@@ -80,36 +69,54 @@ public class AlgHormigas {
                 bestGlobalHormiga = bestActualHormiga;
             }
 
-            // APLICAR EL DEMONIO
-            for (int i = 0; i < m; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (bestActualHormiga.getVectorIndex(i) != j) {
-                        feromona.addToElement(bestActualHormiga.getVectorIndex(i), j, p * bestActualHormiga.getCoste());
-                        feromona.addToElement(j, bestActualHormiga.getVectorIndex(i), p * bestActualHormiga.getCoste());
-                    }
-                }
-            }
-
-            //
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    if (i != j) {
-                        double value = (1 - p) * feromona.getElement(i, j);
-                        feromona.setElement(i, j, value);
-                        feromona.setElement(j, i, value);
-                    }
-                }
-            }
+            updateFeromonaWithBestActualHormiga(n, m, p, feromona, bestActualHormiga);
 
             coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
             iterationEndTime += System.currentTimeMillis() - iterationStartTime;
-            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo: " +
-                    iterationEndTime);
+            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo: " + iterationEndTime);
         }
 
-
         globalEndTime = System.currentTimeMillis() - globalStartTime;
+    }
+
+    private static void updateFeromonaWithBestActualHormiga(int n, int m, double p, MatrizDoubles feromona, Hormiga bestActualHormiga) {
+        double value;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (bestActualHormiga.getVectorIndex(i) != j) {
+                    feromona.addToElement(bestActualHormiga.getVectorIndex(i), j, p * bestActualHormiga.getCoste());
+                    feromona.addToElement(j, bestActualHormiga.getVectorIndex(i), p * bestActualHormiga.getCoste());
+                }
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    value = (1 - p) * feromona.getElement(i, j);
+                    feromona.setElement(i, j, value);
+                    feromona.setElement(j, i, value);
+                }
+            }
+        }
+    }
+
+    private static void updateFeromona(double greedy, double fi, MatrizDoubles feromona, ColoniaHormigas coloniaHormigas, int component) {
+        int x, y;
+        for (Hormiga hormiga : coloniaHormigas.getHormigas()) {
+            for (int i = 0; i < component; i++) {
+                x = hormiga.getVectorIndex(i);
+                y = hormiga.getVectorIndex(component);
+                feromona.setElement(x, y, ((1 - fi) * feromona.getElement(x, y) + (fi * greedy)));
+            }
+        }
+    }
+
+    private static void calculateChosenAndSetToHormiga(double q0, ArrayList<Integer> LRC, RandomGenerator rnd, double[] hxF, double sumHxF, int posArgumentMax, int component, Hormiga hormiga) {
+        int chosen = transition(q0, LRC, rnd, hxF, sumHxF, posArgumentMax);
+        hormiga.setVectorIndex(component, chosen);
+        hormiga.setMarked(chosen, true);
     }
 
     private static int transition(double q0, ArrayList<Integer> LRC, RandomGenerator rnd, double[] hxF, double sumHxF, int posArgumentMax) {

@@ -9,6 +9,10 @@ public class ColoniaHormigas {
         }
     }
 
+    public Hormiga[] getHormigas() {
+        return hormigas;
+    }
+
     public void cargaAleatoria(RandomGenerator rnd, int n) {
         for (Hormiga hormiga : hormigas) {
             hormiga.ramdonInit(rnd.getRandomInt(0, n - 1));
