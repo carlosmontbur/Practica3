@@ -78,7 +78,7 @@ public class AlgHormigas {
                     int posArgMax = -1;
                     for (int i = 0; i < LRC.size(); i++) {
                         denominador += ferxHeu[i];
-                        if (ferxHeu[i] > argMax || posArgMax == -1) {
+                        if (ferxHeu[i] > argMax) {
                             argMax = ferxHeu[i];
                             posArgMax = LRC.get(i);
                         }
@@ -110,10 +110,6 @@ public class AlgHormigas {
                                 break;
                             }
                         }
-                        System.out.println("Acumulado " + acumulado);
-                        System.out.println("Uniforme " + uniforme);
-                        System.out.println("Num " + numerador);
-                        System.out.println("denominador " + denominador);
                     }
                     Hormiga horm = coloniaHormigas.getHormiga(h);
                     horm.setVectorIndex(comp, elegido);
@@ -165,7 +161,7 @@ public class AlgHormigas {
             coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
             iterationEndTime = System.currentTimeMillis() - iterationStartTime;
-            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo iteración: " +
+            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo: " +
                     iterationEndTime);
         }
 

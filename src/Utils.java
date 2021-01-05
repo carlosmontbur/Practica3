@@ -11,6 +11,7 @@ public class Utils {
             j = scanner.nextInt();
             value = scanner.nextFloat();
             data[i][j] = value;
+            data[j][i] = value;
         }
     }
 
