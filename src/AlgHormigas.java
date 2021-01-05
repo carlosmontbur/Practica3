@@ -2,9 +2,10 @@ import java.util.ArrayList;
 
 public class AlgHormigas {
 
+    private static final CustomLogger logger = new CustomLogger();
 
     public static void run(double[][] data, int n, int m, long seed, long iterations, double greedy, int alfa, int beta, int tamPob,
-                           double q0, double p, double fi, double delta) {
+                           double q0, double p, double fi, double delta, String filePath) {
         long globalStartTime = System.currentTimeMillis();
         long globalEndTime;
         MatrizDoubles feromona = new MatrizDoubles(n, greedy);
@@ -74,10 +75,13 @@ public class AlgHormigas {
             coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
             iterationEndTime += System.currentTimeMillis() - iterationStartTime;
-            System.out.println("Iteracion " + cont + " Coste: " + bestGlobalHormiga.getCoste() + " Tiempo: " + iterationEndTime);
+            iterationLog(filePath, bestGlobalHormiga, cont, iterationEndTime);
         }
 
         globalEndTime = System.currentTimeMillis() - globalStartTime;
+
+        finalLog(filePath, globalEndTime, bestGlobalHormiga, cont);
+
     }
 
     private static void updateFeromonaWithBestActualHormiga(int n, int m, double p, MatrizDoubles feromona, Hormiga bestActualHormiga) {
@@ -202,5 +206,15 @@ public class AlgHormigas {
                 }
             }
         }
+    }
+
+    private static void finalLog(String filePath, long globalEndTime, Hormiga bestGlobalHormiga, int cont) {
+        logger.addStringToLog(filePath, "----------------------------------------------------LOG FINAL--------------------------------------------\n" +
+                "Numero iteraciones realizadas " + cont + ", Tiempo transcurrido: " + globalEndTime + "(ms), Mejor Coste: " + bestGlobalHormiga.getCoste() + "\n" +
+                "-----------------------------------------------LOG FINAL-------------------------------------------------\n");
+    }
+
+    private static void iterationLog(String filePath, Hormiga bestGlobalHormiga, int cont, long iterationEndTime) {
+        logger.addStringToLog(filePath, "Iteracion " + cont + ", Tiempo transcurrido: " + iterationEndTime + "(ms), Coste: " + bestGlobalHormiga.getCoste());
     }
 }

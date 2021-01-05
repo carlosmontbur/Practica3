@@ -27,8 +27,8 @@ public class Utils {
         return result;
     }
 
-    public static String getFilePath(int num_file, int num_seed, int porcMPX, int tamEli, int cr) {
-        return "logs/" + "E" + tamEli + "_File" + num_file + "_Seed" + num_seed + "_PorcMPX" + porcMPX;
+    public static String getFilePath(int num_file, int num_seed, int alfa, int beta) {
+        return "logs/" + "File" + num_file + "_Seed" + num_seed + "_Alfa" + alfa + "_Beta" + beta;
     }
 
 }
