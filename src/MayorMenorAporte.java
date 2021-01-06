@@ -1,10 +1,10 @@
-public class MayorMenorDistancia {
+public class MayorMenorAporte {
 
     double mayor;
 
     double menor;
 
-    public MayorMenorDistancia() {
+    public MayorMenorAporte() {
         this.reset();
     }
 

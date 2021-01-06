@@ -16,7 +16,7 @@ public class Main {
         int tamPob = parameterReader.getTamPob();
         double greedy = parameterReader.getGreedy().get(num_file);
         int alfa = 1;
-        int beta = 2;
+        int beta = 1;
         double q0 = parameterReader.getQ0();
         double p = parameterReader.getP();
         double fi = parameterReader.getFi();
@@ -29,11 +29,8 @@ public class Main {
         int m = scanner.nextInt();
         double[][] data = new double[n][n];
         Utils.readFileAndStoreFloatValues(scanner, data);
-
         File dir = new File("logs");
         dir.mkdirs();
-
-
         String filePath = Utils.getFilePath(num_file, num_seed, alfa, beta);
 
         AlgHormigas.run(data, n, m, seed, evaluations, greedy, alfa, beta, tamPob, q0, p, fi, delta, filePath);

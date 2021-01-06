@@ -21,8 +21,8 @@ public class AlgHormigas {
         long iterationEndTime = 0;
         RandomGenerator rnd = new RandomGenerator();
         rnd.setSeed(seed);
-        double[] distancias;
-        MayorMenorDistancia mayorMenor = new MayorMenorDistancia();
+        double[] aportes;
+        MayorMenorAporte mayorMenor = new MayorMenorAporte();
         double[] HxF; // Heuristicas x Feromonas
         double sumHxF;
         double argumentMax;
@@ -35,13 +35,13 @@ public class AlgHormigas {
 
             for (int component = 1; component < m; component++) {
                 for (Hormiga hormiga : coloniaHormigas.getHormigas()) {
-                    distancias = new double[n];
+                    aportes = new double[n];
 
-                    calculateDistances(data, n, component, distancias, hormiga);
+                    calculateAportes(data, n, component, aportes, hormiga);
 
-                    calculateMayorMenorDistancia(n, mayorMenor, distancias, hormiga);
+                    calculateMayorMenorAporte(n, mayorMenor, aportes, hormiga);
 
-                    calculateLRC(n, delta, LRC, mayorMenor, distancias, hormiga);
+                    calculateLRC(n, delta, LRC, mayorMenor, aportes, hormiga);
 
                     HxF = calculateHxF(alfa, beta, feromona, heuristica, LRC, component);
 
@@ -173,9 +173,9 @@ public class AlgHormigas {
         return HxF;
     }
 
-    private static void calculateLRC(int n, double delta, ArrayList<Integer> LRC, MayorMenorDistancia mayorMenor, double[] distancias, Hormiga hormiga) {
+    private static void calculateLRC(int n, double delta, ArrayList<Integer> LRC, MayorMenorAporte mayorMenor, double[] aportes, Hormiga hormiga) {
         for (int i = 0; i < n; i++) {
-            if (!hormiga.isIndexMarked(i) && (distancias[i] >= (mayorMenor.getMenor() +
+            if (!hormiga.isIndexMarked(i) && (aportes[i] >= (mayorMenor.getMenor() +
                     (delta * (mayorMenor.getMayor() - mayorMenor.getMenor()))))
             ) {
                 LRC.add(i);
@@ -183,26 +183,26 @@ public class AlgHormigas {
         }
     }
 
-    private static void calculateMayorMenorDistancia(int n, MayorMenorDistancia mayorMenor, double[] distancias, Hormiga hormiga) {
+    private static void calculateMayorMenorAporte(int n, MayorMenorAporte mayorMenor, double[] aportes, Hormiga hormiga) {
         mayorMenor.reset();
         for (int i = 0; i < n; i++) {
             if (!hormiga.isIndexMarked(i)) {
-                if (distancias[i] < mayorMenor.getMenor()) {
-                    mayorMenor.setMenor(distancias[i]);
+                if (aportes[i] < mayorMenor.getMenor()) {
+                    mayorMenor.setMenor(aportes[i]);
                 }
-                if (distancias[i] > mayorMenor.getMayor()) {
-                    mayorMenor.setMayor(distancias[i]);
+                if (aportes[i] > mayorMenor.getMayor()) {
+                    mayorMenor.setMayor(aportes[i]);
                 }
             }
         }
     }
 
-    private static void calculateDistances(double[][] data, int n, int component, double[] distancias, Hormiga hormiga) {
+    private static void calculateAportes(double[][] data, int n, int component, double[] aportes, Hormiga hormiga) {
         for (int i = 0; i < n; i++) {
-            distancias[i] = 0;
+            aportes[i] = 0;
             if (!hormiga.isIndexMarked(i)) {
-                for (int k = 0; k < component; k++) {
-                    distancias[i] += data[i][hormiga.getVectorIndex(k)];
+                for (int j = 0; j < component; j++) {
+                    aportes[i] += data[i][hormiga.getVectorIndex(j)];
                 }
             }
         }
