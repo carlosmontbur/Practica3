@@ -15,7 +15,7 @@ public class Main {
         int evaluations = parameterReader.getEvaluations();
         int tamPob = parameterReader.getTamPob();
         double greedy = parameterReader.getGreedy().get(num_file);
-        int alfa = 1;
+        int alfa = 2;
         int beta = 1;
         double q0 = parameterReader.getQ0();
         double p = parameterReader.getP();

@@ -61,7 +61,7 @@ public class AlgHormigas {
                     LRC.clear();
                 }
 
-                updateFeromona(greedy, fi, feromona, coloniaHormigas, component);
+                updateFeromonaLocal(greedy, fi, feromona, coloniaHormigas, component);
             }
 
             bestActualHormiga = coloniaHormigas.getBestHormiga(data, m);
@@ -70,7 +70,8 @@ public class AlgHormigas {
                 bestGlobalHormiga = bestActualHormiga;
             }
 
-            updateFeromonaWithBestActualHormiga(n, m, p, feromona, bestActualHormiga);
+            updateFeromonaGlobal(n, m, p, feromona, bestActualHormiga);
+            applyDemon(n, p, feromona);
 
             coloniaHormigas = new ColoniaHormigas(m, tamPob, n);
             ++cont;
@@ -84,8 +85,7 @@ public class AlgHormigas {
 
     }
 
-    private static void updateFeromonaWithBestActualHormiga(int n, int m, double p, MatrizDoubles feromona, Hormiga bestActualHormiga) {
-        double value;
+    private static void updateFeromonaGlobal(int n, int m, double p, MatrizDoubles feromona, Hormiga bestActualHormiga) {
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (bestActualHormiga.getVectorIndex(i) != j) {
@@ -94,7 +94,10 @@ public class AlgHormigas {
                 }
             }
         }
+    }
 
+    private static void applyDemon(int n, double p, MatrizDoubles feromona) {
+        double value;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (i != j) {
@@ -106,7 +109,7 @@ public class AlgHormigas {
         }
     }
 
-    private static void updateFeromona(double greedy, double fi, MatrizDoubles feromona, ColoniaHormigas coloniaHormigas, int component) {
+    private static void updateFeromonaLocal(double greedy, double fi, MatrizDoubles feromona, ColoniaHormigas coloniaHormigas, int component) {
         int x, y;
         for (Hormiga hormiga : coloniaHormigas.getHormigas()) {
             for (int i = 0; i < component; i++) {
